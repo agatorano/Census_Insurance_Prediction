@@ -2,7 +2,9 @@ import pandas as pd
 import csv
 import psycopg2
 
-bad_col = ["RT", "SPORDER", "ADJINC", "INTP", "JWRIP", "JWTR", "MARHYP",
+bad_col = ["WKHP", "PUMA", "RAC3P", "POWSP", "POBP", "OCCP",
+           "LANP", "INDP", "FOD1P", "FOD2P", "ANC2P", "ANC1P", "CITWP",
+           "RT", "SPORDER", "ADJINC", "INTP", "JWRIP", "JWTR", "MARHYP",
            "NWRE", "RELP", "ANC", "YOEP", "DRIVESP", "JWAP", "JWDP",
            "MIGPUMA", "MIGSP", "NAICSP", "POWPUMA", "SFN", "SFR",
            "SOCP", "FAGEP", "FANCP", "FCITP", "FCITWP", "FCOWP",
@@ -34,6 +36,9 @@ bad_col = ["RT", "SPORDER", "ADJINC", "INTP", "JWRIP", "JWTR", "MARHYP",
            "pwgtp76", "pwgtp77", "pwgtp78", "pwgtp79", "pwgtp80"]
 
 id_col = ["SERIALNO"]
+
+num_col = ["AGEP", "PWGTP", "RETP", "SEMP", "SSIP", "SSP",
+           "WAGP", "PERNP", "PINCP", "POVPIP", "OIP", "PAP"]
 
 flag_col = ["FPOWSP", "FPRIVCOVP", "FHINS1P", "FHINS2P", "FHINS3C",
             "FHINS3P", "FHINS4C", "FHINS4P", "FHINS5C", "FHINS5P",
@@ -71,6 +76,44 @@ def create_table():
 
 def insert_by_chunk():
     pass
+
+
+def standardize_num_columns(chunk):
+    '''
+    standardize all numerical columns to their z_score
+    '''
+    for col in num_col:
+        chunk[col] = (chunk[col] - chunk[col].mean())/chunk[col].std()
+
+    return chunk
+
+
+def creat_dummy_columns(chunk):
+    '''
+    create dummy variables for the categorical columns
+    '''
+    cat_col = [col for col in chunk.columns if col not in num_col]
+    pre = {col: col for col in chunk[cat_col].columns}
+
+    chunk[cat_col] = chunk[cat_col].applymap(lambda x: str(x) if x >= 0 else x)
+
+    dum_col = list(pd.get_dummies(chunk, pre, dummy_na=True).columns)
+    chunk[dum_col] = pd.get_dummies(chunk, pre, dummy_na=True)
+    chunk.drop(cat_col, 1, inplace=True)
+
+    return chunk
+
+
+def filter_data(chunk):
+    '''
+    remove columns that are difficult to learn from or are not appropriate
+    remove people under the age of 18, who are required to have their parents
+    insurance plans
+    '''
+    chunk = chunk.drop(bad_col+flag_col+id_col, axis=1)
+    chunk = chunk[chunk.AGEP > 18]
+
+    return chunk
 
 
 def main():
