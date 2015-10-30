@@ -93,14 +93,15 @@ def make_insertion(cur, chunk, i):
 
     return cur
 
-
 def clean_chunk(chunk):
     '''
     run data cleaning functions
     '''
-    chunk = filter_data(chunk)
+    chunk = chunk.drop(bad_col, axis=1)
+    chunk = chunk[chunk.AGEP > 18]
     chunk = create_dummy_columns(chunk)
     chunk = standardize_num_columns(chunk)
+    chunk = chunk.dropna(axis=0)
 
     return chunk
 
