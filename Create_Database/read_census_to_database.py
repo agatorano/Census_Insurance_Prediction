@@ -2,13 +2,16 @@ import pandas as pd
 import csv
 import psycopg2
 
-bad_col = ["WKHP", "PUMA", "RAC3P", "POWSP", "POBP", "OCCP",
+bad_col = ["PRIVCOV", "PUBCOV", "HINS1", "HINS2", "HINS3", "HINS4", "HINS5",
+           "HINS6", "HINS7", "WKHP", "PUMA", "RAC3P", "POWSP", "POBP", "OCCP",
            "LANP", "INDP", "FOD1P", "FOD2P", "ANC2P", "ANC1P", "CITWP",
            "RT", "SPORDER", "ADJINC", "INTP", "JWRIP", "JWTR", "MARHYP",
            "NWRE", "RELP", "ANC", "YOEP", "DRIVESP", "JWAP", "JWDP",
-           "MIGPUMA", "MIGSP", "NAICSP", "POWPUMA", "SFN", "SFR",
+           "MIGPUMA", "MIGSP", "NAICSP", "POWPUMA", "SFN", "SFR", "SERIALNO"
            "SOCP", "FAGEP", "FANCP", "FCITP", "FCITWP", "FCOWP",
-           "FDDRSP", "FDEARP", "FDEYEP", "FDISP", "FDOUTP",
+           "FPUBCOVP", "FPOWSP", "FPRIVCOVP", "FHINS1P", "FHINS2P", "FHINS3C",
+           "FHINS3P", "FHINS4C", "FHINS4P", "FHINS5C", "FHINS5P", "FHINS6P",
+           "FDDRSP", "FDEARP", "FDEYEP", "FDISP", "FDOUTP", "FHINS7P"
            "FDPHYP", "FDRATP", "FDRATXP", "FDREMP", "FENGP",
            "FESRP", "FFERP", "FFODP", "FGCLP", "FGCMP", "FGCRP",
            "FHISP", "FINDP", "FINTP", "FJWDP", "FJWMNP", "FJWRIP",
@@ -35,17 +38,12 @@ bad_col = ["WKHP", "PUMA", "RAC3P", "POWSP", "POBP", "OCCP",
            "pwgtp71", "pwgtp72", "pwgtp73", "pwgtp74", "pwgtp75",
            "pwgtp76", "pwgtp77", "pwgtp78", "pwgtp79", "pwgtp80"]
 
-id_col = ["SERIALNO"]
 
 num_col = ["AGEP", "PWGTP", "RETP", "SEMP", "SSIP", "SSP",
            "WAGP", "PERNP", "PINCP", "POVPIP", "OIP", "PAP"]
 
-flag_col = ["FPOWSP", "FPRIVCOVP", "FHINS1P", "FHINS2P", "FHINS3C",
-            "FHINS3P", "FHINS4C", "FHINS4P", "FHINS5C", "FHINS5P",
-            "FHINS6P", "FHINS7P"]
 
-health_col = ["HIVOC", "PRIVCOV", "PUBCOV", "HINS1", "HINS2",
-              "HINS3", "HINS4", "HINS5", "HINS6", "HINS7"]
+health_col = ["HIVOC"]
 
 
 def create_table():
@@ -132,7 +130,7 @@ def filter_data(chunk):
     remove people under the age of 18, who are required to have their parents
     insurance plans
     '''
-    chunk = chunk.drop(bad_col+flag_col+id_col, axis=1)
+    chunk = chunk.drop(bad_col, axis=1)
     chunk = chunk[chunk.AGEP > 18]
 
     return chunk
