@@ -1,5 +1,4 @@
 import pandas as pd
-import csv
 import psycopg2
 
 bad_col = ["PRIVCOV", "PUBCOV", "HINS1", "HINS2", "HINS3", "HINS4", "HINS5",
@@ -7,11 +6,11 @@ bad_col = ["PRIVCOV", "PUBCOV", "HINS1", "HINS2", "HINS3", "HINS4", "HINS5",
            "LANP", "INDP", "FOD1P", "FOD2P", "ANC2P", "ANC1P", "CITWP",
            "RT", "SPORDER", "ADJINC", "INTP", "JWRIP", "JWTR", "MARHYP",
            "NWRE", "RELP", "ANC", "YOEP", "DRIVESP", "JWAP", "JWDP",
-           "MIGPUMA", "MIGSP", "NAICSP", "POWPUMA", "SFN", "SFR", "SERIALNO"
+           "MIGPUMA", "MIGSP", "NAICSP", "POWPUMA", "SFN", "SFR", "SERIALNO",
            "SOCP", "FAGEP", "FANCP", "FCITP", "FCITWP", "FCOWP",
            "FPUBCOVP", "FPOWSP", "FPRIVCOVP", "FHINS1P", "FHINS2P", "FHINS3C",
            "FHINS3P", "FHINS4C", "FHINS4P", "FHINS5C", "FHINS5P", "FHINS6P",
-           "FDDRSP", "FDEARP", "FDEYEP", "FDISP", "FDOUTP", "FHINS7P"
+           "FDDRSP", "FDEARP", "FDEYEP", "FDISP", "FDOUTP", "FHINS7P",
            "FDPHYP", "FDRATP", "FDRATXP", "FDREMP", "FENGP",
            "FESRP", "FFERP", "FFODP", "FGCLP", "FGCMP", "FGCRP",
            "FHISP", "FINDP", "FINTP", "FJWDP", "FJWMNP", "FJWRIP",
@@ -50,7 +49,7 @@ def insert_into_table(create_data_table=False):
 
     count = 0
     column_list = []
-    for chunk in pd.read_csv('ss13pusa.csv', chunksize=5000, header=0):
+    for chunk in pd.read_csv('../ss13pusa.csv', chunksize=5000, header=0):
 
         chunk = clean_chunk(chunk)
 
@@ -63,7 +62,7 @@ def insert_into_table(create_data_table=False):
 
         column_list += [col for col in chunk.columns if col not in column_list]
 
-        if count == 1:
+        if count == 50:
             break
 
         count += 1
