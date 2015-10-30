@@ -78,6 +78,17 @@ def insert_by_chunk():
     pass
 
 
+def clean_chunk(chunk):
+    '''
+    run data cleaning functions
+    '''
+    chunk = filter_data(chunk)
+    chunk = create_dummy_columns(chunk)
+    chunk = standardize_num_columns(chunk)
+
+    return chunk
+
+
 def standardize_num_columns(chunk):
     '''
     standardize all numerical columns to their z_score
@@ -88,7 +99,7 @@ def standardize_num_columns(chunk):
     return chunk
 
 
-def creat_dummy_columns(chunk):
+def create_dummy_columns(chunk):
     '''
     create dummy variables for the categorical columns
     '''
