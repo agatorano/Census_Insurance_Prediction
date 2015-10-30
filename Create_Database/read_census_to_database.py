@@ -1,6 +1,6 @@
 import pandas as pd
 import psycopg2
-from clean_data import clean_chunk
+import clean_data
 
 
 def insert_into_table(create_data_table=False):
@@ -9,7 +9,7 @@ def insert_into_table(create_data_table=False):
     column_list = []
     for chunk in pd.read_csv('../ss13pusa.csv', chunksize=5000, header=0):
 
-        chunk = clean_chunk(chunk)
+        chunk = clean_data.clean_chunk(chunk)
 
         if count == 0 and create_data_table is True:
             create_table(chunk.columns)
