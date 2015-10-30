@@ -46,16 +46,23 @@ num_col = ["AGEP", "PWGTP", "RETP", "SEMP", "SSIP", "SSP",
 health_col = ["HIVOC"]
 
 
+def get_connection():
+
+    try:
+        conn = psycopg2.connect("dbname='holder' user='holder' host='ip' password='psswd'")
+    except:
+        print "I am unable to connect to the database"
+
+    return conn
+
+
 def create_table():
 
     '''
     create the postgres table we will inser the table into
     '''
 
-    try:
-        conn = psycopg2.connect("dbname='holder' user='holder' host='ip' password='psswd'")
-    except:
-        print "I am unable to connect to the database"
+    conn = get_connection()
 
     cur = conn.cursor()
 
