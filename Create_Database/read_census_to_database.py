@@ -46,31 +46,45 @@ num_col = ["AGEP", "PWGTP", "RETP", "SEMP", "SSIP", "SSP",
 health_col = ["HIVOC"]
 
 
+def insert_into_table(create_data_table=False):
+
+    count = 0
+    column_list = []
+    for chunk in pd.read_csv('ss13pusa.csv', chunksize=5000, header=0):
+
+        chunk = clean_chunk(chunk)
+
+        if count == 0 and create_data_table is True:
+            create_table(chunk.columns)
+            column_list += [col for col in chunk.columns if col not in column_list]
+
+        for i in range(len(chunk)):
+            column_list = insert_chunk_into_table(chunk, i, column_list)
+
+        column_list += [col for col in chunk.columns if col not in column_list]
+
+        if count == 1:
+            break
+
+        count += 1
+
+
 def get_connection():
 
     try:
-        conn = psycopg2.connect("dbname='holder' user='holder' host='ip' password='psswd'")
+        conn = psycopg2.connect("dbname='agatorano' user='agatorano' host='/tmp/' password='529382Ag'")
     except:
         print "I am unable to connect to the database"
 
     return conn
 
 
-def create_table():
-
-    '''
-    create the postgres table we will inser the table into
-    '''
+def create_table(columns):
 
     conn = get_connection()
-
     cur = conn.cursor()
 
-    with open("../ss13pusa.csv", "rb") as f:
-        reader = csv.reader(f)
-        columns = reader.next()
-
-    sql = "CREATE TABLE test (%s);" % ','.join('%s INTEGER' % col for col in columns)
+    sql = "CREATE TABLE test (%s);" % ','.join('%s FLOAT' % col for col in columns)
 
     cur.execute(sql)
     conn.commit()
@@ -79,19 +93,30 @@ def create_table():
     conn.close()
 
 
-def insert_by_chunk():
-    pass
-
-
-def make_insertion(cur, chunk, i):
+def insert_chunk_into_table(chunk, i, column_list):
     '''
-    create querry to make SQL insertion
+    if the column hasn't been seen yet it is added to the table
+    insert all data into the updated table
     '''
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    for col in chunk.columns:
+        if col not in column_list:
+            add_column_to_table(col)
+            column_list.append(col)
+
     sql = "INSERT INTO test (%s)" % ','.join("%s" % col for col in chunk.columns)
-    sql = sql + " VALUE (%s)" % ','.join('%s' % col for col in chunk.iloc[i])
+    sql = sql + " VALUES (%s);" % ','.join('%s' % col for col in chunk.iloc[i])
     cur.execute(sql)
 
-    return cur
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return column_list
+
 
 def clean_chunk(chunk):
     '''
@@ -121,31 +146,38 @@ def create_dummy_columns(chunk):
     create dummy variables for the categorical columns
     '''
     cat_col = [col for col in chunk.columns if col not in num_col]
-    pre = {col: col for col in chunk[cat_col].columns}
+    pre = {col: col for col in cat_col}
 
-    chunk[cat_col] = chunk[cat_col].applymap(lambda x: str(x) if x >= 0 else x)
+    chunk[cat_col] = chunk[cat_col].applymap(lambda x: str(int(x)) if x >= 0 else str(x))
 
-    dum_col = list(pd.get_dummies(chunk, pre, dummy_na=True).columns)
-    chunk[dum_col] = pd.get_dummies(chunk, pre, dummy_na=True)
+    dum_df = pd.get_dummies(chunk[cat_col], pre)
+    dum_col = list(dum_df.columns)
+
+    chunk[dum_col] = dum_df
     chunk.drop(cat_col, 1, inplace=True)
 
     return chunk
 
 
-def filter_data(chunk):
+def add_column_to_table(column):
     '''
-    remove columns that are difficult to learn from or are not appropriate
-    remove people under the age of 18, who are required to have their parents
-    insurance plans
+    Add dummy columns to table
     '''
-    chunk = chunk.drop(bad_col, axis=1)
-    chunk = chunk[chunk.AGEP > 18]
+    conn = get_connection()
+    cur = conn.cursor()
 
-    return chunk
+    sql = 'ALTER TABLE test ADD COLUMN %s INTEGER;' % column
+    cur.execute(sql)
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
 
 
 def main():
-    insert_by_chunk()
+    insert_into_table(create_data_table=True)
 
 
 if __name__ == '__main__':
