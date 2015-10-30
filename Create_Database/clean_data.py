@@ -42,7 +42,7 @@ num_col = ["AGEP", "PWGTP", "RETP", "SEMP", "SSIP", "SSP",
            "WAGP", "PERNP", "PINCP", "POVPIP", "OIP", "PAP"]
 
 
-health_col = ["HIVOC"]
+health_col = ["HICOV"]
 
 
 def clean_chunk(chunk):
