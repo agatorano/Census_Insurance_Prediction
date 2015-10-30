@@ -78,6 +78,17 @@ def insert_by_chunk():
     pass
 
 
+def make_insertion(cur, chunk, i):
+    '''
+    create querry to make SQL insertion
+    '''
+    sql = "INSERT INTO test (%s)" % ','.join("%s" % col for col in chunk.columns)
+    sql = sql + " VALUE (%s)" % ','.join('%s' % col for col in chunk.iloc[i])
+    cur.execute(sql)
+
+    return cur
+
+
 def clean_chunk(chunk):
     '''
     run data cleaning functions
