@@ -29,7 +29,7 @@ def insert_into_table(create_data_table=False):
 def get_connection():
 
     try:
-        conn = psycopg2.connect("dbname='agatorano' user='agatorano' host='/tmp/' password='529382Ag'")
+        conn = psycopg2.connect("dbname='dummy' user='dummy' host='/tmp/' password='password'")
     except:
         print "I am unable to connect to the database"
 
