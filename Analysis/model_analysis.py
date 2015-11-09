@@ -22,8 +22,6 @@ from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 
-from sqlalchemy import create_engine
-
 
 def get_data():
 

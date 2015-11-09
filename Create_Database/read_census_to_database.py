@@ -90,8 +90,6 @@ def add_column_to_table(column):
     conn.close()
 
 
-
-
 def main():
     insert_into_table(create_data_table=True)
 
